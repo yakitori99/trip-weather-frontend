@@ -1,0 +1,29 @@
+/* class -------------------------------------------------------------------------------- */
+/* 共通 -------------------------------------- */
+.icon_margin_left {
+    margin-left: 0.1rem;
+}
+
+/* WeatherComponent -------------------------------------- */
+/* 現在地selectのアイコン */
+.from_color {
+    /* color: #f89c12 !important; */
+    color: #1e9fa4 !important;
+}
+
+/* 目的地selectのアイコン */
+.to_color {
+    color: #35d3da !important;
+}
+
+/* About -------------------------------------- */
+.about_all_div{
+    margin:2rem;
+}
+.about_h {
+    font-weight: 600;
+    /* Headerと同色。orange darken-1 */
+    border-bottom: 0.5px solid #FB8C00;
+    margin-bottom: 0.5rem;
+    margin-top: 2rem;
+}
