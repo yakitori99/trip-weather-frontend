@@ -306,7 +306,7 @@ export default {
         } else if (i==2){
           labelDates.push('明日')
         } else {
-          const dateStr = v.substr(5,2) + "/" + v.substr(8,2)
+          const dateStr = parseInt(v.substr(5,2)) + "/" + parseInt(v.substr(8,2))
           labelDates.push(dateStr)
         }
       })
@@ -317,17 +317,21 @@ export default {
       // labelのフォントサイズを決定
       let fontXSize = 12
       let fontYSize = 12
-      if(window.matchMedia('(min-width: 540px)').matches) {
+      if(window.matchMedia('(min-width: 570px)').matches) {
         // PC/タブレット向け
         fontXSize = 15
         fontYSize = 12
       } else if (window.matchMedia('(min-width: 400px)').matches){
         // 大きめのスマホ向け
-        fontXSize = 12
+        fontXSize = 11
+        fontYSize = 10
+      } else if (window.matchMedia('(min-width: 350px)').matches){
+        // 小さめのスマホ向け
+        fontXSize = 9.5
         fontYSize = 10
       } else {
-        // 小さめのスマホ向け
-        fontXSize = 10
+        // より小さいスマホ向け
+        fontXSize = 9
         fontYSize = 10
       }
       this.labelXFontSize = fontXSize
