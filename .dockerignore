@@ -1,0 +1,3 @@
+# ローカルのnode_modulesとdistはイメージに含めない
+**/node_modules
+**/dist
