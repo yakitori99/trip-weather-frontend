@@ -15,7 +15,11 @@ RUN npm run build
 FROM nginx:stable-alpine as production-stage
 # ビルド済み資材をappへコピー
 COPY --from=build-stage /app/dist /app
-# nginx設定ファイルをコピー
+# nginx設定ファイル(include用のテンプレート)をコピー
+COPY default.conf.template /etc/nginx/conf.d/default.conf.template
+# nginx設定ファイル(本体)をコピー
 COPY nginx.conf /etc/nginx/nginx.conf
-# EXPOSE 80 # listenするポートはnginx.confで指定
-CMD ["nginx", "-g", "daemon off;"]
+
+# CMD ["nginx", "-g", "daemon off;"]
+# 環境変数からポートを指定しつつ、実行
+CMD /bin/sh -c "envsubst '\$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf" && nginx -g 'daemon off;'
