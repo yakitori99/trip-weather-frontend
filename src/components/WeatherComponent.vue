@@ -89,7 +89,10 @@ import axios from 'axios'
 
 import WeatherLineChart from './WeatherLineChart.vue'
 
-const api_base_url = 'http://localhost:1323'
+
+// const api_base_url = 'http://localhost:1323'
+const api_base_url = 'https://trip-weather-backend.herokuapp.com'
+
 //axiosインスタンス生成
 const $http = new axios.create({
     baseURL: api_base_url
