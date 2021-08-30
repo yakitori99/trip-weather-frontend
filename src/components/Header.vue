@@ -6,7 +6,7 @@
     >
       <!-- アプリのメインアイコン+アプリ名 ...リンク1:気温・天気を見る-->
       <router-link to="/" class="text-sm-h5 white--text" style="text-decoration:none; display:block;">
-        <i class="fas fa-cloud-sun fa-lg"></i>
+        <i class="fas fa-cloud-sun"></i>
         TripWeather
       </router-link>
 
