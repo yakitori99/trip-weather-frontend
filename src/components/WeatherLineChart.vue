@@ -8,8 +8,8 @@ export default {
   extends: Line,
   // グラフ表示するデータ内容を呼び出し元から受け取る
   props: [
-    "fromTempMaxs", 'fromTempMins', 'fromCityName', 
-      'toTempMaxs',   'toTempMins',   'toCityName', 
+    'fromTempMaxs', 'fromTempMins', 'fromCityName', 
+    'toTempMaxs',   'toTempMins',   'toCityName', 
     'labels', 'labelXFontSize', 'labelYFontSize'
   ],
   data: () => ({
