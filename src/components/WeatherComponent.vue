@@ -7,12 +7,12 @@
         <p class="select_area_title">現在地</p>
         <!-- From pref -->
         <v-select
-          v-bind:items="itemsFromPref"
+          v-bind:items="$store.state.itemsFromPref"
+          v-bind:value="$store.state.itemFromPrefSelected"
           item-text="PrefName"
           item-value="PrefCode"
           label="都道府県を選択"
-          @change="getFromCityByPrefcode"
-          v-model="itemFromPrefSelected"
+          @change="getFromCityByPrefcode($event)"
         >
           <template v-slot:prepend>
             <v-icon class="from_color">mdi-map</v-icon>
@@ -20,13 +20,13 @@
         </v-select>
         <!-- From city -->
         <v-select
-          v-bind:items="itemsFromCity"
+          v-bind:items="$store.state.itemsFromCity"
+          v-bind:value="$store.state.itemFromCitySelected"
           item-text="CityName"
           item-value="CityCode"
           label="都市を選択"
           prepend-icon="mdi-map-marker"
-          @change="changeFromCity"
-          v-model="itemFromCitySelected"
+          @change="changeFromCity($event)"
         >
           <template v-slot:prepend>
             <v-icon class="from_color">mdi-map-marker</v-icon>
@@ -39,13 +39,13 @@
         <p class="select_area_title">目的地</p>
         <!-- To pref -->
         <v-select
-          v-bind:items="itemsToPref"
+          v-bind:items="$store.state.itemsToPref"
+          v-bind:value="$store.state.itemToPrefSelected"
           item-text="PrefName"
           item-value="PrefCode"
           label="都道府県を選択"
           prepend-icon="mdi-map"
-          @change="getToCityByPrefcode"
-          v-model="itemToPrefSelected"
+          @change="getToCityByPrefcode($event)"
         >
           <template v-slot:prepend>
             <v-icon class="to_color">mdi-map</v-icon>
@@ -53,13 +53,13 @@
         </v-select>
         <!-- To city -->
         <v-select
-          v-bind:items="itemsToCity"
+          v-bind:items="$store.state.itemsToCity"
+          v-bind:value="$store.state.itemToCitySelected"
           item-text="CityName"
           item-value="CityCode"
           label="都市を選択"
           prepend-icon="mdi-map-marker"
-          @change="changeToCity"
-          v-model="itemToCitySelected"
+          @change="changeToCity($event)"
         >
           <template v-slot:prepend>
             <v-icon class="to_color">mdi-map-marker</v-icon>
@@ -71,12 +71,12 @@
 
     <!-- 天気のグラフ -->
     <WeatherLineChart v-if="loaded" 
-      v-bind:from-temp-maxs="fromTempMaxs" 
-      v-bind:from-temp-mins="fromTempMins" 
-      v-bind:from-city-name="fromCityName" 
-      v-bind:to-temp-maxs="toTempMaxs" 
-      v-bind:to-temp-mins="toTempMins" 
-      v-bind:to-city-name="toCityName" 
+      v-bind:from-temp-maxs="$store.state.fromTempMaxs" 
+      v-bind:from-temp-mins="$store.state.fromTempMins" 
+      v-bind:from-city-name="$store.state.fromCityName" 
+      v-bind:to-temp-maxs="$store.state.toTempMaxs" 
+      v-bind:to-temp-mins="$store.state.toTempMins" 
+      v-bind:to-city-name="$store.state.toCityName" 
       v-bind:labels="labels" 
       v-bind:label-x-font-size="labelXFontSize"
       v-bind:label-y-font-size="labelYFontSize"
@@ -88,7 +88,7 @@
 import axios from 'axios'
 
 import WeatherLineChart from './WeatherLineChart.vue'
-
+import Types from '../vuex/types'
 
 // const api_base_url = 'http://localhost:1323'
 const api_base_url = 'https://trip-weather-backend.herokuapp.com'
@@ -143,47 +143,37 @@ const zipFunc = (...arrays) => {
   return new Array(length).fill().map((_, i) => arrays.map(arr => arr[i]))
 }
 
+const makeLabels = function(fromWeathers, toWeathers, labelDates){
+  const labelWeathers = makeLabelWeathers(fromWeathers, toWeathers)
+  const labels = zipFunc(labelWeathers, labelDates)
+  return labels
+}
+
 export default {
   name: 'WeatherComponent',
   components: { WeatherLineChart },
 
   data: () => ({  
     loaded: false,
-    // dict{cityCode:cityName}
-    cityCodeNameDict:null,
-    // dict{prefCode:array of CityInfo}
-    // CityInfoの例:{"CityCode":"011000","CityName":"稚内","PrefCode":"01","CityLon":141.673889,"CityLat":45.409439}
-    prefCodeCityInfosDict:null,
-    // From
-    itemsFromPref: [],
-    itemFromPrefSelected:null,
-    itemsFromCity: [],
-    itemFromCitySelected:null,
-    fromCityName:"現在地",
-    // To
-    itemsToPref: [],
-    itemToPrefSelected:null,
-    itemsToCity: [],
-    itemToCitySelected:null,
-    toCityName:"目的地",
+
     // chart label
-    labelDates:[],
-    labelWeathers:["-", "-/-", "-", "-", "-", "-", "-", "-", "-"],
-    fromWeathers:["-", "-"], // 2
-    toWeathers:["-", "-", "-", "-", "-", "-", "-", "-"], // 8
     labels:[],
     labelXFontSize:12,
     labelYFontSize:12,
-    // chart data
-    fromTempMaxs:[NaN],
-    fromTempMins:[NaN],
-    toTempMaxs:[NaN],
-    toTempMins:[NaN]
   }),
 
   //created:インスタンス生成後に実行
   created(){
-    this.getPrefCityAllAsync()
+    // 代入先に一つでもnullのものがある場合、処理実行
+    const arr = [
+      this.$store.state.cityCodeNameDict,
+      this.$store.state.prefCodeCityInfosDict,
+      this.$store.state.itemsFromPref,
+      this.$store.state.itemsToPref,
+    ]
+    if (arr.some(value => value==null)){
+      this.getPrefCityAllAsync()
+    }
   },
 
   // mounted :DOMが作成された直後
@@ -196,32 +186,35 @@ export default {
     getPrefCityAllAsync () {
       //非同期関数の定義
       const httpGetPrefCityAll = async () => {
-          //1.GETリクエスト送信 //並行処理
-          //2.全てのレスポンスが返ってくるまで待ち合わせ
-          // Promise.all([])とawaitを併用する
-          const results = await Promise.all([
-            $http.get('/get_prefs'),
-            $http.get('/get_cities')
-          ])
-          const resPrefs = results[0]
-          const resCities = results[1]
+        //1.GETリクエスト送信 //並行処理
+        //2.全てのレスポンスが返ってくるまで待ち合わせ
+        // Promise.all([])とawaitを併用する
+        const results = await Promise.all([
+          $http.get('/get_prefs'),
+          $http.get('/get_cities')
+        ])
+        const resPrefs = results[0]
+        const resCities = results[1]
 
-          //3.response内のレスポンス結果代入
-          this.cityCodeNameDict = {}
-          this.prefCodeCityInfosDict = {}
-          for (const row of resCities.data) {
-            this.cityCodeNameDict[row["CityCode"]] = row["CityName"]
-            
-            if (row["PrefCode"] in this.prefCodeCityInfosDict){
-              this.prefCodeCityInfosDict[row["PrefCode"]].push(row)
-            } else {
-              this.prefCodeCityInfosDict[row["PrefCode"]] = [row]
-            }
-          }
+        //3.response内のレスポンス結果代入
+        let cityCodeNameDict = {}
+        let prefCodeCityInfosDict = {}
+        for (const row of resCities.data) {
+          cityCodeNameDict[row["CityCode"]] = row["CityName"]
           
-          // 代入 -> v-bindにより更新
-          this.itemsFromPref = resPrefs.data
-          this.itemsToPref = resPrefs.data
+          if (row["PrefCode"] in prefCodeCityInfosDict){
+            prefCodeCityInfosDict[row["PrefCode"]].push(row)
+          } else {
+            prefCodeCityInfosDict[row["PrefCode"]] = [row]
+          }
+        }
+        // storeへ代入
+        this.$store.commit(Types.UPDATE_CITY_CODE_NAME_DICT, cityCodeNameDict)
+        this.$store.commit(Types.UPDATE_PREF_CODE_CITY_INFOS_DICT, prefCodeCityInfosDict)
+        
+        // storeへ代入 -> v-bindにより更新
+        this.$store.commit(Types.UPDATE_ITEMS_FROM_PREF, resPrefs.data)
+        this.$store.commit(Types.UPDATE_ITEMS_TO_PREF, resPrefs.data)
       }
 
       //非同期関数の実行
@@ -229,25 +222,28 @@ export default {
     },
 
     // 現在地の都道府県変更時に呼び出し、都市情報selectを再設定
-    getFromCityByPrefcode () {
-      this.itemFromCitySelected = null // 選択済みの都市をリセット
-      // this.prefCodeCityInfosDictから、PrefCodeに応じたCityInfosを取得し代入
-      this.itemsFromCity = this.prefCodeCityInfosDict[this.itemFromPrefSelected]
+    getFromCityByPrefcode (prefCode) {
+      this.$store.commit(Types.UPDATE_ITEM_FROM_PREF_SELECTED, prefCode) // 選択されたprefCodeをセット
+      this.$store.commit(Types.UPDATE_ITEM_FROM_CITY_SELECTED, null) // 選択済みの都市をリセット
+      // PrefCodeに応じたCityInfosを取得し代入
+      this.$store.commit(Types.UPDATE_ITEMS_FROM_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemFromPrefSelected])
     },
     // 目的地の都道府県変更時に呼び出し、都市情報selectを再設定
-    getToCityByPrefcode () {
-      this.itemToCitySelected = null // 選択済みの都市をリセット
-      // this.prefCodeCityInfosDictから、PrefCodeに応じたCityInfosを取得し代入
-      this.itemsToCity = this.prefCodeCityInfosDict[this.itemToPrefSelected]
+    getToCityByPrefcode (prefCode) {
+      this.$store.commit(Types.UPDATE_ITEM_TO_PREF_SELECTED, prefCode) // 選択されたprefCodeをセット
+      this.$store.commit(Types.UPDATE_ITEM_TO_CITY_SELECTED, null) // 選択済みの都市をリセット
+      // PrefCodeに応じたCityInfosを取得し代入
+      this.$store.commit(Types.UPDATE_ITEMS_TO_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemToPrefSelected])
     },
     
     // 現在地の都市変更時に呼び出し
-    async changeFromCity(){
+    async changeFromCity(cityCode){
       this.loaded = false
+      this.$store.commit(Types.UPDATE_ITEM_FROM_CITY_SELECTED, cityCode)
 
       // API get 
-      const response = await $http.get('/get_weather_from/'+this.itemFromCitySelected)
-      // 整形してthisへ代入
+      const response = await $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected)
+      // 整形してstoreへ代入
       let fromTempMaxs = []
       let fromTempMins = []
       let fromWeathers = []
@@ -256,23 +252,23 @@ export default {
         fromTempMins.push(v["MinTemp"])
         fromWeathers.push(getWeatherIconByWeatherCode(v["WeatherCode"]))
       }
-      this.fromTempMaxs = fromTempMaxs
-      this.fromTempMins = fromTempMins
-      this.fromWeathers = fromWeathers
+      this.$store.commit(Types.UPDATE_FROM_TEMP_MAXS, fromTempMaxs)
+      this.$store.commit(Types.UPDATE_FROM_TEMP_MINS, fromTempMins)
+      this.$store.commit(Types.UPDATE_FROM_WEATHERS, fromWeathers)
       // 都市名を設定
-      this.fromCityName = this.cityCodeNameDict[this.itemFromCitySelected]
+      this.$store.commit(Types.UPDATE_FROM_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemFromCitySelected])
       // labelを作成
-      this.labelWeathers = makeLabelWeathers(this.fromWeathers, this.toWeathers)
-      this.labels = zipFunc(this.labelWeathers, this.labelDates)
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates)
       this.loaded = true
     },
     // 目的地の都市変更時に呼び出し
-    async changeToCity(){
+    async changeToCity(cityCode){
       this.loaded = false
+      this.$store.commit(Types.UPDATE_ITEM_TO_CITY_SELECTED, cityCode)
 
       // API get 
-      const response = await $http.get('/get_weather_to/'+this.itemToCitySelected)
-      // 整形してthisへ代入
+      const response = await $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
+      // 整形してstoreへ代入
       let toTempMaxs = [NaN]
       let toTempMins = [NaN]
       let toWeathers = []
@@ -281,42 +277,44 @@ export default {
         toTempMins.push(v["MinTemp"])
         toWeathers.push(getWeatherIconByWeatherCode(v["WeatherCode"]))
       }
-      this.toTempMaxs = toTempMaxs
-      this.toTempMins = toTempMins
-      this.toWeathers = toWeathers
+      this.$store.commit(Types.UPDATE_TO_TEMP_MAXS, toTempMaxs)
+      this.$store.commit(Types.UPDATE_TO_TEMP_MINS, toTempMins)
+      this.$store.commit(Types.UPDATE_TO_WEATHERS, toWeathers)
       // 都市名を設定
-      this.toCityName = this.cityCodeNameDict[this.itemToCitySelected]
+      this.$store.commit(Types.UPDATE_TO_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemToCitySelected])
       // labelを作成
-      this.labelWeathers = makeLabelWeathers(this.fromWeathers, this.toWeathers)
-      this.labels = zipFunc(this.labelWeathers, this.labelDates)
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates)
       this.loaded = true
     },
 
     // 最初にグラフ初期値を描くための関数
     async fillFistChart () {
       this.loaded = false
-      //// 日付ラベルのarrayを作成
-      // APIコールして日付データ取得
-      const response = await $http.get('/get_datetimes')
-      // 日付ラベルの形式を整える
-      const rawLabelDates = response.data
-      let labelDates = []
-      rawLabelDates.forEach(function(v, i) {
-        if (i == 0) {
-          labelDates.push('昨日')
-        } else if (i==1) {
-          labelDates.push('今日')
-        } else if (i==2){
-          labelDates.push('明日')
-        } else {
-          const dateStr = parseInt(v.substr(5,2)) + "/" + parseInt(v.substr(8,2))
-          labelDates.push(dateStr)
-        }
-      })
-      this.labelDates = labelDates
+      // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
+      if (this.$store.state.labelDates == null) {
+        // APIコールして日付データ取得
+        const response = await $http.get('/get_datetimes')
+        // 日付ラベルの形式を整える
+        const rawLabelDates = response.data
+        let labelDates = []
+        rawLabelDates.forEach(function(v, i) {
+          if (i == 0) {
+            labelDates.push('昨日')
+          } else if (i==1) {
+            labelDates.push('今日')
+          } else if (i==2){
+            labelDates.push('明日')
+          } else {
+            const dateStr = parseInt(v.substr(5,2)) + "/" + parseInt(v.substr(8,2))
+            labelDates.push(dateStr)
+          }
+        })
+        this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
+      }
       
       // labelを作成
-      this.labels = zipFunc(this.labelWeathers, this.labelDates)
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates)
+
       // labelのフォントサイズを決定
       let fontXSize = 12
       let fontYSize = 12
