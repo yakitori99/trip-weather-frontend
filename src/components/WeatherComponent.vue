@@ -4,7 +4,7 @@
     <v-row class="mt-1">
       <!-- Fromの選択 -->
       <v-col cols="6" sm="6">
-        <p>現在地</p>
+        <p class="select_area_title">現在地</p>
         <!-- From pref -->
         <v-select
           v-bind:items="itemsFromPref"
@@ -36,7 +36,7 @@
 
       <!-- Toの選択 -->
       <v-col cols="6" sm="6">
-        <p>目的地</p>
+        <p class="select_area_title">目的地</p>
         <!-- To pref -->
         <v-select
           v-bind:items="itemsToPref"

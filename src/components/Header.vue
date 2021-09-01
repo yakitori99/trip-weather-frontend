@@ -5,7 +5,7 @@
       dark
     >
       <!-- アプリのメインアイコン+アプリ名 ...リンク1:気温・天気を見る-->
-      <router-link to="/" class="text-sm-h5 white--text" style="text-decoration:none; display:block;">
+      <router-link to="/" class="white--text app_title">
         <i class="fas fa-cloud-sun"></i>
         TripWeather
       </router-link>
@@ -13,7 +13,7 @@
       <v-spacer></v-spacer>
 
       <!-- リンク2:About -->
-      <router-link to="/about"  class="text-sm-h6 white--text font-weight-regular" style="text-decoration:none; display:block;">
+      <router-link to="/about"  class="white--text header_menu_title">
         <i class="far fa-question-circle "></i>
         About
       </router-link>

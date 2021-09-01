@@ -1,7 +1,23 @@
-/* tag -------------------------------------------------------------------------------- */
+/* HTML要素 -------------------------------------------------------------------------------- */
 /* 共通 -------------------------------------- */
-/* iPhoneでのレイアウト崩れ対応 */
+html{
+    /* 
+        全体(ルート要素)のフォントサイズをレスポンシブ対応 
+        -> 個別の要素は、基本的にremを使ってサイズを指定する。
+    */
+    /* 
+        font-size: calc(A + B * (100vw - C)/D);
+            A・・・最小文字サイズ
+            B・・・最大文字サイズ – 最小文字サイズ
+            C・・・最小画面幅
+            D・・・最大画面幅 – 最小画面幅
+    */
+    /* 最小12px, 最大16px, 画面の横幅が320-1000pxの間のときは横幅に応じてサイズを変更する */
+    font-size: max(12px, min(16px, calc(12px + 4 * (100vw - 320px)/680)));
+}
+
 body {
+    /* iPhoneでのレイアウト崩れ対応 */
     -webkit-appearance: none;
     -webkit-text-size-adjust: 100%;
 }
@@ -12,13 +28,35 @@ body {
     margin-left: 0.1rem;
 }
 
+/* Header -------------------------------------- */
+/* ヘッダー左上のアプリメインタイトル&アイコン */
+.app_title{
+    text-decoration:none;
+    font-weight: normal;
+    font-size: 1.5rem;
+    display:block;
+}
+
+/* ヘッダー右上のメニュータイトル&アイコン */
+.header_menu_title{
+    text-decoration:none;
+    font-weight: normal;
+    font-size: 1.3rem;
+    display:block;
+}
+
 /* WeatherComponent -------------------------------------- */
+/* 現在地/目的地selectエリアのタイトル */
+.select_area_title{
+    /* selectorとフォントサイズを揃える */
+    font-size: 16px;
+}
+
 /* 現在地selectのアイコン */
 .from_color {
     /* color: #f89c12 !important; */
     color: #1e9fa4 !important;
 }
-
 /* 目的地selectのアイコン */
 .to_color {
     color: #35d3da !important;
