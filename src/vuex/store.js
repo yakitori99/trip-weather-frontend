@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 import Types from './types'
 
-
+// 初期値で使うケースがある変数は適切な初期値、それ以外はnullを指定する
 const state = {
     // dict{cityCode:cityName}
     cityCodeNameDict:null,
@@ -13,15 +13,14 @@ const state = {
     // CityInfoの例:{"CityCode":"011000","CityName":"稚内","PrefCode":"01","CityLon":141.673889,"CityLat":45.409439}
     prefCodeCityInfosDict:null,
     
-    //// 初期値で使うケースがある変数は、null以外を指定する
     // From
-    itemsFromPref: null,
+    itemsFromPref: [],
     itemFromPrefSelected:null,
     itemsFromCity: [],
     itemFromCitySelected:null,
     fromCityName:"現在地",
     // To
-    itemsToPref: null,
+    itemsToPref: [],
     itemToPrefSelected:null,
     itemsToCity: [],
     itemToCitySelected:null,

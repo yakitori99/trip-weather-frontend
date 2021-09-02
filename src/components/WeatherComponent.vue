@@ -164,19 +164,17 @@ export default {
 
   //created:インスタンス生成後に実行
   created(){
-    // 代入先に一つでもnullのものがある場合、処理実行
-    const arr = [
-      this.$store.state.cityCodeNameDict,
-      this.$store.state.prefCodeCityInfosDict,
-      this.$store.state.itemsFromPref,
-      this.$store.state.itemsToPref,
-    ]
-    if (arr.some(value => value==null)){
+    // 代入先に一つでも初期値のものがある場合、処理実行
+    if (this.$store.state.cityCodeNameDict     ==null ||
+        this.$store.state.prefCodeCityInfosDict==null ||
+        this.$store.state.itemsFromPref.length ==0 ||
+        this.$store.state.itemstoPref.length   ==0
+    ){
       this.getPrefCityAllAsync()
     }
   },
 
-  // mounted :DOMが作成された直後
+  // mounted :DOMが作成された直後に実行
   mounted() {
     this.fillFistChart()
   },
