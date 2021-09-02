@@ -168,7 +168,7 @@ export default {
     if (this.$store.state.cityCodeNameDict     ==null ||
         this.$store.state.prefCodeCityInfosDict==null ||
         this.$store.state.itemsFromPref.length ==0 ||
-        this.$store.state.itemstoPref.length   ==0
+        this.$store.state.itemsToPref.length   ==0
     ){
       this.getPrefCityAllAsync()
     }
