@@ -143,9 +143,9 @@ const zipFunc = (...arrays) => {
   return new Array(length).fill().map((_, i) => arrays.map(arr => arr[i]))
 }
 
-const makeLabels = function(fromWeathers, toWeathers, labelDates){
+const makeLabels = function(fromWeathers, toWeathers, labelDates, labelDaysOfWeek){
   const labelWeathers = makeLabelWeathers(fromWeathers, toWeathers)
-  const labels = zipFunc(labelWeathers, labelDates)
+  const labels = zipFunc(labelWeathers, labelDates, labelDaysOfWeek)
   return labels
 }
 
@@ -256,7 +256,7 @@ export default {
       // 都市名を設定
       this.$store.commit(Types.UPDATE_FROM_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemFromCitySelected])
       // labelを作成
-      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates)
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
       this.loaded = true
     },
     // 目的地の都市変更時に呼び出し
@@ -281,7 +281,7 @@ export default {
       // 都市名を設定
       this.$store.commit(Types.UPDATE_TO_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemToCitySelected])
       // labelを作成
-      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates)
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
       this.loaded = true
     },
 
@@ -295,23 +295,32 @@ export default {
         // 日付ラベルの形式を整える
         const rawLabelDates = response.data
         let labelDates = []
+        let labelDaysOfWeek = [] //曜日
         rawLabelDates.forEach(function(v, i) {
+          const date = new Date(v)
+          const dayOfWeek = date.getDay() ;	// 曜日(数値)
+          const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek]// 曜日(日本語表記)
+          let dateStr = ""
           if (i == 0) {
-            labelDates.push('昨日')
+            dateStr = "昨日"
           } else if (i==1) {
-            labelDates.push('今日')
+            dateStr = "今日"
           } else if (i==2){
-            labelDates.push('明日')
+            dateStr = "明日"
           } else {
-            const dateStr = parseInt(v.substr(5,2)) + "/" + parseInt(v.substr(8,2))
-            labelDates.push(dateStr)
+            const month = date.getMonth()+1 // 0始まりの数字で取得されるため、+1する
+            const day = date.getDate()
+            dateStr = month + "/" + day
           }
+          labelDates.push(dateStr)
+          labelDaysOfWeek.push("(" + dayOfWeekStr + ")")
         })
         this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
+        this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
       }
       
       // labelを作成
-      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates)
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
 
       // labelのフォントサイズを決定
       let fontXSize = 12

@@ -28,6 +28,7 @@ const state = {
     
     // chart label
     labelDates:null,
+    labelDaysOfWeek:null,
     fromWeathers:["-", "-"], // 2
     toWeathers:["-", "-", "-", "-", "-", "-", "-", "-"], // 8
     // chart data
@@ -84,6 +85,9 @@ const mutations = {
   // CHART LABEL
   [Types.UPDATE_LABEL_DATES](state, labelDates) {
     state.labelDates = labelDates
+  },
+  [Types.UPDATE_LABEL_DAYS_OF_WEEK](state, labelDaysOfWeek) {
+    state.labelDaysOfWeek = labelDaysOfWeek
   },
   [Types.UPDATE_FROM_WEATHERS](state, fromWeathers) {
     state.fromWeathers = fromWeathers
