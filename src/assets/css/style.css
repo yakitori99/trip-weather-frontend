@@ -27,6 +27,10 @@ body {
 .icon_margin_left {
     margin-left: 0.1rem;
 }
+.icon-padding-small{
+    padding-right: 0.2rem;
+}
+
 
 /* Header -------------------------------------- */
 /* ヘッダー左上のアプリメインタイトル&アイコン */
@@ -104,9 +108,6 @@ body {
 }
 .top-button-box{
     padding-bottom: 3rem;
-}
-.top-icon-padding{
-    padding-right: 0.2rem;
 }
 
 

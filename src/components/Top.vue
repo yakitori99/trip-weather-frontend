@@ -6,7 +6,7 @@
       <div class="top-centered-container">
         <!-- 上下中央揃え 中身 -->
         <div class="top-centered-box top-text-appname">
-          <i class="fas fa-plane top-icon-padding"></i>
+          <i class="fas fa-plane icon-padding-small"></i>
           TripWeather
         </div>
 
@@ -23,7 +23,7 @@
            dark
            rounded
           >
-            <i class="fas fa-sun top-icon-padding"></i>
+            <i class="fas fa-sun icon-padding-small"></i>
             天気を見る
           </v-btn>
         </div>
