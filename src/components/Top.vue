@@ -6,24 +6,24 @@
       <div class="top-centered-container">
         <!-- 上下中央揃え 中身 -->
         <div class="top-centered-box top-text-appname">
-          <i class="fas fa-plane" style="padding-right:0.2rem;"></i>
+          <i class="fas fa-plane top-icon-padding"></i>
           TripWeather
         </div>
 
         <div class="top-centered-box top-text">
           旅行先の天気予報を現在地と比較して簡単に確認できます。
-          <!-- <br> -->
-          <!-- 旅行の準備にどうぞ -->
         </div>
         
-        <div class="top-centered-box">
+        <div class="top-centered-box top-button-box">
           <v-btn
            to="/weather"
            color="orange darken-1"
+           class="top-button"
+           large
            dark
            rounded
           >
-            <i class="fas fa-sun" style="padding-right:0.2rem;"></i>
+            <i class="fas fa-sun top-icon-padding"></i>
             天気を見る
           </v-btn>
         </div>
