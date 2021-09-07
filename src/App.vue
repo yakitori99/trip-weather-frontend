@@ -1,7 +1,8 @@
 <template>
   <v-app>
-    <!-- ヘッダー -->
-      <Header/>
+    <!-- ヘッダー and ナビゲーション -->
+    <Header/>
+
     <!-- メインコンテンツ -->
     <v-main>
       <!-- Pathが一致したComponentの描画結果を挿入する箇所 -->
@@ -13,7 +14,7 @@
 <script>
 import router from './router'
 
-import Header from './components/Header';
+import Header from './components/Header'
 
 export default {
   router,
