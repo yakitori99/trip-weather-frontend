@@ -23,7 +23,7 @@
            dark
            rounded
           >
-            <i class="fas fa-sun icon-padding-small"></i>
+            <i class="fas fa-sun icon-padding-medium"></i>
             天気を見る
           </v-btn>
         </div>

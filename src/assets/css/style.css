@@ -30,7 +30,9 @@ body {
 .icon-padding-small{
     padding-right: 0.2rem;
 }
-
+.icon-padding-medium{
+    padding-right: 0.3rem;
+}
 
 /* Header -------------------------------------- */
 /* ヘッダー左上のアプリメインタイトル&アイコン */
