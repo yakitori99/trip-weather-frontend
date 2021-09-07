@@ -82,6 +82,7 @@ body {
     color:white;
     text-align: center;
     font-size:2rem;
+    /* 画像上でも見やすいよう、上下左右に影をつける */
     text-shadow: 0.5px  0.5px 0.5px #0277BD,
                 -0.5px  0.5px 0.5px #0277BD,
                  0.5px -0.5px 0.5px #0277BD,
@@ -92,6 +93,7 @@ body {
     text-align: center;
     padding-bottom: 1.0rem;
     font-size:1.2rem;
+    /* 画像上でも見やすいよう、上下左右に影をつける */
     text-shadow: 0.5px  0.5px 0.5px #0277BD,
                 -0.5px  0.5px 0.5px #0277BD,
                  0.5px -0.5px 0.5px #0277BD,
