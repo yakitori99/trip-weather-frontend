@@ -56,7 +56,7 @@ body {
     display: flex;
 }
 .top-bg-image{
-    background-image: url("/images/background-image/sea_ishigakijima.png");
+    background-image: url("/images/background-image/sea_ishigakijima.jpg");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: bottom center;
