@@ -431,10 +431,6 @@ export default {
         toastType = "info"
       }
 
-      // sleep for test
-      // const _sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-      // await _sleep(1000)
-
       this.$toasted.show(resultMessage, {
         theme:"bubble",
         position:"top-right",
