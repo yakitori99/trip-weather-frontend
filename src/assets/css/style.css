@@ -34,6 +34,13 @@ body {
     padding-right: 0.3rem;
 }
 
+/* toastの色を変更 */
+.toasted.bubble.success {
+    background: #00BFA5 !important;
+}
+.toasted.bubble.info {
+    background: #00B0FF !important;
+}
 /* Header -------------------------------------- */
 /* ヘッダー左上のアプリメインタイトル&アイコン */
 .app_title{
@@ -128,6 +135,12 @@ body {
 /* 目的地selectのアイコン */
 .to_color {
     color: #35d3da !important;
+}
+/* お気に入りに登録ボタン */
+.weather-ins-button {
+    margin-top:0.5rem;
+    margin-right:1rem;
+    margin-bottom:1.5rem;
 }
 
 /* About -------------------------------------- */

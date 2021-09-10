@@ -1,4 +1,5 @@
 <template>
+<div>
   <v-container>
     <!-- 都道府県、都市の選択 -->
     <v-row class="mt-1">
@@ -82,6 +83,27 @@
       v-bind:label-y-font-size="labelYFontSize"
     />
   </v-container>
+  
+  <!-- お気に入りに登録ボタン -->
+  <v-container>
+    <v-row
+      justify="end"
+    >
+      <v-btn
+        color="cyan accent-4"
+        class="weather-ins-button"
+        dark
+        @click="insertFavorite"
+        v-if="flgFromCitySelected && flgToCitySelected"  
+        v-bind:loading="loading"        
+      >
+        <i class="fas fa-star icon-padding-medium"></i>
+        お気に入りに登録
+      </v-btn>
+    </v-row>
+  </v-container>
+
+</div>
 </template>
 
 <script>
@@ -156,6 +178,13 @@ export default {
   data: () => ({  
     loaded: false,
 
+    // 都市が選択されているかのフラグ
+    flgFromCitySelected: false,
+    flgToCitySelected: false,
+
+    // 登録ボタンの二度押しを防ぐためのフラグ
+    loading: false,
+
     // chart label
     labels:[],
     labelXFontSize:12,
@@ -178,6 +207,34 @@ export default {
   mounted() {
     this.fillFistChart()
   },
+
+
+  // 現在地都市、目的地都市のstoreの値を監視し、選択中か否かのフラグを切り替え(computedとwatchの組み合わせで実現)
+  computed: {
+    getItemFromCitySelected() {
+      return this.$store.state.itemFromCitySelected
+    },
+    getItemToCitySelected() {
+      return this.$store.state.itemToCitySelected
+    },
+  },
+  watch: {
+    getItemFromCitySelected (newVal) {
+      if (newVal == null){
+        this.flgFromCitySelected = false
+      } else {
+        this.flgFromCitySelected = true
+      }
+    },
+    getItemToCitySelected (newVal) {
+      if (newVal == null){
+        this.flgToCitySelected = false
+      } else {
+        this.flgToCitySelected = true
+      }
+    },
+  },
+
 
   methods: {
     // APIから都道府県データを取得
@@ -345,7 +402,48 @@ export default {
       this.labelXFontSize = fontXSize
       this.labelYFontSize = fontYSize
       this.loaded = true
-    }
+    },
+
+    // 選択中の現在地都市、目的地都市をAPI経由でfavoriteテーブルへ登録（登録済みの場合、更新日時のみ更新）
+    async insertFavorite () {
+      this.loading = true
+
+      const fromCityCode = this.$store.state.itemFromCitySelected
+      const toCityCode = this.$store.state.itemToCitySelected
+      
+      // json形式でAPI POST
+      const response = await $http.post('/favorites', {
+        from_city_code:fromCityCode,
+        to_city_code:toCityCode,
+      })
+      
+      // 登録結果を受け取り、画面表示
+      const resultCode = parseInt(response.data["ResultCode"])
+      let resultMessage
+      let toastType
+      if (resultCode == 1){
+        // 新規追加成功
+        resultMessage = "お気に入りに登録しました！"
+        toastType = "success"
+      } else if (resultCode == 2){
+        // 更新成功
+        resultMessage = "お気に入りを更新しました！"
+        toastType = "info"
+      }
+
+      // sleep for test
+      // const _sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+      // await _sleep(1000)
+
+      this.$toasted.show(resultMessage, {
+        theme:"bubble",
+        position:"top-right",
+        duration:3000,
+        type:toastType,
+      })
+
+      this.loading = false
+    },
   
   }
 }
