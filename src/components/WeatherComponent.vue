@@ -205,7 +205,7 @@ export default {
 
   // mounted :DOMが作成された直後に実行
   mounted() {
-    this.fillFistChart()
+    this.fillFirstChart()
   },
 
 
@@ -343,7 +343,7 @@ export default {
     },
 
     // 最初にグラフ初期値を描くための関数
-    async fillFistChart () {
+    async fillFirstChart () {
       this.loaded = false
       // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
       if (this.$store.state.labelDates == null) {
@@ -401,6 +401,15 @@ export default {
       }
       this.labelXFontSize = fontXSize
       this.labelYFontSize = fontYSize
+
+      // storeの状態をもとに、現在地、目的地の都市選択フラグを更新
+      if (this.$store.state.itemFromCitySelected != null){
+        this.flgFromCitySelected = true
+      }
+      if (this.$store.state.itemToCitySelected != null){
+        this.flgToCitySelected = true
+      }
+
       this.loaded = true
     },
 
