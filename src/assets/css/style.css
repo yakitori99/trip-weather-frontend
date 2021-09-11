@@ -41,6 +41,42 @@ body {
 .toasted.bubble.info {
     background: #00B0FF !important;
 }
+
+/* v-data-tableを変更 ----------*/
+/* スマホ向けにデザイン修正(marginを小さくする等) */
+.v-data-footer {
+    justify-content: end;
+}
+.v-data-footer__select{
+    margin-left:0.5rem !important;
+    margin-right:0.5rem !important;
+}
+.v-data-footer__select .v-select {
+    margin-left:0.5rem !important;
+    margin-right:0.5rem !important;
+}
+.v-data-footer__pagination {
+    margin-left:0.5rem !important;
+    margin-right:0.5rem !important;
+}
+/* ヘッダーのデザイン変更 */
+.v-data-table-header{
+    background-color: #00b8d4;
+}
+.theme--light.v-data-table > .v-data-table__wrapper > table > thead > tr > th{
+    color:white;
+}
+.theme--light.v-data-table .v-data-table-header th.sortable:hover, .theme--light.v-data-table .v-data-table-header th.sortable.active{
+    color:white;
+}
+.theme--light.v-data-table .v-data-table-header th.sortable.active .v-data-table-header__icon {
+    color:white;
+}
+.theme--light.v-data-table .v-data-table-header th.sortable .v-data-table-header__icon{
+    color:white;
+}
+
+
 /* Header -------------------------------------- */
 /* ヘッダー左上のアプリメインタイトル&アイコン */
 .app_title{
@@ -142,6 +178,27 @@ body {
     margin-right:1rem;
     margin-bottom:1.5rem;
 }
+
+/* Favorites -------------------------------------- */
+.favorites-all-div {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+}
+.favorites-top-div {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+.favorites-h {
+    font-weight: 600;
+    border-bottom: 0.5px solid #00b8d4;
+    margin-bottom: 0.5rem;
+}
+/* .favorites-card-title {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+} */
 
 /* About -------------------------------------- */
 .about_all_div{
