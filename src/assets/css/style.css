@@ -73,7 +73,7 @@ body {
     color:white;
 }
 .theme--light.v-data-table .v-data-table-header th.sortable .v-data-table-header__icon{
-    color:white;
+    color:rgba(255, 255, 255, 0.01);
 }
 
 
