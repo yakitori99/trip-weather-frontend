@@ -24,7 +24,7 @@
         
         v-bind:custom-sort="customSort"
         sort-by="UpdDate"
-        sort-desc="true"
+        v-bind:sort-desc="true"
         
         mobile-breakpoint="320"
 
