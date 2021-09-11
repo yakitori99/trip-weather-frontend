@@ -42,6 +42,16 @@ body {
     background: #00B0FF !important;
 }
 
+.text-center {
+    text-align: center;
+}
+
+/* ロード中のアイコン */
+.v-progress-circular {
+    padding-top:2rem;
+    padding-bottom:2rem;
+}
+
 /* v-data-tableを変更 ----------*/
 /* スマホ向けにデザイン修正(marginを小さくする等) */
 .v-data-footer {

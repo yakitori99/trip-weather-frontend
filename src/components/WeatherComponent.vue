@@ -83,6 +83,17 @@
       v-bind:label-y-font-size="labelYFontSize"
     />
   </v-container>
+  <!-- 天気のグラフのロード中に表示するアイコン -->
+  <div class="text-center">
+    <v-progress-circular
+        v-if="!loaded"
+        indeterminate
+        color="orange accent-3"
+        :size="50"
+        :width="4"
+        class="v-progress-circular"
+    ></v-progress-circular>
+  </div>
   
   <!-- お気に入りに登録ボタン -->
   <v-container>
