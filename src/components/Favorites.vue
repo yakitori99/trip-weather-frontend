@@ -2,7 +2,7 @@
   <div class="favorites-all-div">
     <div class="favorites-top-div">
       <h3 class="favorites-h">お気に入り</h3>
-      <p>お気に入りをクリックすると、その現在地・目的地の天気を見ることができます。</p>
+      <p>お気に入りから選んで、１クリックで天気予報を見ることができます。</p>
     </div>
     <v-card outlined>
       <!-- ニックネーム選択 -->
