@@ -2,7 +2,7 @@
   <div class="favorites-all-div">
     <div class="favorites-top-div">
       <h3 class="favorites-h">お気に入り</h3>
-      <p>お気に入りから現在地、目的地を選んで天気を見ることができます。</p>
+      <p>お気に入りをクリックすると、その現在地・目的地の天気を見ることができます。</p>
     </div>
     <v-card outlined>
       <!-- ニックネーム選択 -->
@@ -159,8 +159,6 @@ export default {
     },
 
     onClickRow(row){
-      // debug
-      // console.log(row)
       // 都市コードから都道府県コードを作成
       const fromCityCode = row["FromCityCode"]
       const fromPrefCode = fromCityCode.substr(0, 2)
