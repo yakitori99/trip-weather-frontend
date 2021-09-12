@@ -216,10 +216,19 @@ body {
     border-bottom: 0.5px solid #00b8d4;
     margin-bottom: 0.5rem;
 }
-/* .favorites-card-title {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-} */
+
+/* ニックネーム選択 */
+.favorites-card-title {
+    padding-top: 1.2rem;
+    padding-bottom: 0.2rem;
+    max-width: 20rem;
+}
+.favorites-card-title > .v-text-field{
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+    margin-top: 0rem;
+    margin-bottom: 0rem;
+}
 
 /* About -------------------------------------- */
 .about_all_div{
