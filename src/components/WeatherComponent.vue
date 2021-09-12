@@ -428,65 +428,6 @@ export default {
       this.loaded = true
     },
 
-    setLabelFontsize(){
-      // labelのフォントサイズを決定
-      let fontXSize = 12
-      let fontYSize = 12
-      if(window.matchMedia('(min-width: 570px)').matches) {
-        // PC/タブレット向け
-        fontXSize = 15
-        fontYSize = 12
-      } else if (window.matchMedia('(min-width: 400px)').matches){
-        // 大きめのスマホ向け
-        fontXSize = 11
-        fontYSize = 10
-      } else if (window.matchMedia('(min-width: 350px)').matches){
-        // 小さめのスマホ向け
-        fontXSize = 9.5
-        fontYSize = 10
-      } else {
-        // より小さいスマホ向け
-        fontXSize = 9
-        fontYSize = 10
-      }
-      this.labelXFontSize = fontXSize
-      this.labelYFontSize = fontYSize
-    },
-
-    // 最初にグラフ初期値を描くための関数
-    async fillFirstChart () {
-      this.loaded = false
-      // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
-      if (this.$store.state.labelDates == null) {
-        // APIコールして日付データ取得
-        const response = await $http.get('/get_datetimes')
-        // 日付ラベルの形式を整える
-        const dateLabels = makeDateLabels(response.data)
-        const labelDates = dateLabels[0]
-        const labelDaysOfWeek = dateLabels[1]
-
-        this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
-        this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
-      }
-      
-      // labelを作成
-      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
-      // ラベルのフォントサイズを決定
-      this.setLabelFontsize()
-
-      // storeの状態をもとに、現在地、目的地の都市選択フラグを更新
-      if (this.$store.state.itemFromCitySelected != null){
-        this.flgFromCitySelected = true
-      }
-      if (this.$store.state.itemToCitySelected != null){
-        this.flgToCitySelected = true
-      }
-      // storeからnicknameを取得し設定
-      this.nickname = this.$store.state.nickname
-
-      this.loaded = true
-    },
-
     // 選択中の現在地都市、目的地都市をAPI経由でfavoriteテーブルへ登録（登録済みの場合、更新日時のみ更新）
     async insertFavorite () {
       // 利用できないニックネームの場合、エラーを表示してリターン
@@ -540,10 +481,77 @@ export default {
       this.loading = false
     },
 
+    // 現在の画面幅をもとにグラフラベルのフォントサイズを決めて代入する関数
+    setLabelFontsize(){
+      // labelのフォントサイズを決定
+      let fontXSize = 12
+      let fontYSize = 12
+      if(window.matchMedia('(min-width: 570px)').matches) {
+        // PC/タブレット向け
+        fontXSize = 15
+        fontYSize = 12
+      } else if (window.matchMedia('(min-width: 400px)').matches){
+        // 大きめのスマホ向け
+        fontXSize = 11
+        fontYSize = 10
+      } else if (window.matchMedia('(min-width: 350px)').matches){
+        // 小さめのスマホ向け
+        fontXSize = 9.5
+        fontYSize = 10
+      } else {
+        // より小さいスマホ向け
+        fontXSize = 9
+        fontYSize = 10
+      }
+      this.labelXFontSize = fontXSize
+      this.labelYFontSize = fontYSize
+    },
+
+    // ページ表示時の共通的な初期処理を行う関数
+    commonFirstSetting(){
+      // labelを作成
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
+      // ラベルのフォントサイズを決定
+      this.setLabelFontsize()
+
+      // storeの状態をもとに、現在地、目的地の都市選択フラグを更新
+      if (this.$store.state.itemFromCitySelected != null){
+        this.flgFromCitySelected = true
+      }
+      if (this.$store.state.itemToCitySelected != null){
+        this.flgToCitySelected = true
+      }
+      // storeからnicknameを取得し設定
+      this.nickname = this.$store.state.nickname
+    },
+
+    // 最初にグラフ初期値を描くための関数
+    async fillFirstChart () {
+      this.loaded = false
+      // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
+      if (this.$store.state.labelDates == null) {
+        // APIコールして日付データ取得
+        const response = await $http.get('/get_datetimes')
+        // 日付ラベルの形式を整える
+        const dateLabels = makeDateLabels(response.data)
+        // storeへ代入
+        const labelDates = dateLabels[0]
+        const labelDaysOfWeek = dateLabels[1]
+        this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
+        this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
+      }
+      
+      // 共通の初期処理を実施
+      this.commonFirstSetting()
+
+      this.loaded = true
+    },
+
     // favoritesページから遷移してきたときの初期処理を実行
     async favoritesToWeather () {
       this.loaded = false
 
+      // 現在地、目的地の天気をAPI経由で取得
       let resWeatherFrom
       let resWeatherTo
       // 日付ラベルのarrayがまだ存在しない場合、まとめてAPIから取得し作成
@@ -562,9 +570,9 @@ export default {
         
         // 日付ラベルの形式を整える
         const dateLabels = makeDateLabels(resLabelDates.data)
+        // storeへ代入
         const labelDates = dateLabels[0]
         const labelDaysOfWeek = dateLabels[1]
-
         this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
         this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
       } else {
@@ -581,29 +589,16 @@ export default {
       // fromを整形してstoreへ代入
       this.setStoreWeatherFrom(resWeatherFrom.data)
       // toを整形してstoreへ代入
-      this.setStoreWeatherFrom(resWeatherTo.data)
-      
-      // labelを作成
-      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
-      // ラベルのフォントサイズを決定
-      this.setLabelFontsize()
-
+      this.setStoreWeatherTo(resWeatherTo.data)
       // 都市のセレクトを設定
       this.$store.commit(Types.UPDATE_ITEMS_FROM_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemFromPrefSelected])
       this.$store.commit(Types.UPDATE_ITEMS_TO_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemToPrefSelected])
-
-      // storeの状態をもとに、現在地、目的地の都市選択フラグを更新
-      if (this.$store.state.itemFromCitySelected != null){
-        this.flgFromCitySelected = true
-      }
-      if (this.$store.state.itemToCitySelected != null){
-        this.flgToCitySelected = true
-      }
-      // storeからnicknameを取得し設定
-      this.nickname = this.$store.state.nickname
-
+      
       // 画面遷移フラグをfalseに戻す
       this.$store.commit(Types.UPDATE_FLG_FAVORITES_TO_WEATHER, false)
+
+      // 共通の初期処理を実施
+      this.commonFirstSetting()
 
       this.loaded = true
     },
