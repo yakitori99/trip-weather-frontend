@@ -107,7 +107,7 @@
           prepend-icon="mdi-account-circle-outline"
 
           v-model="nickname"
-          v-bind:rules="[rules.counter]"
+          v-bind:rules="[rules.counter, rules.specialCheck]"
           counter="10"
           maxlength="10"
           v-if="flgFromCitySelected && flgToCitySelected"
@@ -220,6 +220,13 @@ export default {
     nickname:"",
     rules: {
       counter: value => value.length <= 10 || '最大10文字です',
+      specialCheck:value => {
+        if (value == config.noNickname) {
+          return "利用できないニックネームです"
+        } else {
+          return true
+        }
+      },
     },
   }),
 
@@ -449,6 +456,17 @@ export default {
 
     // 選択中の現在地都市、目的地都市をAPI経由でfavoriteテーブルへ登録（登録済みの場合、更新日時のみ更新）
     async insertFavorite () {
+      // 利用できないニックネームの場合、エラーを表示してリターン
+      if (this.nickname == config.noNickname){
+        this.$toasted.show("利用できないニックネームです", {
+          theme:"bubble",
+          position:"bottom-right",
+          duration:3000,
+          type:"error",
+        })
+        return
+      }
+
       this.loading = true
       // ニックネーム文字列の空白を削除してthisへ再設定、storeへ登録
       this.nickname = this.nickname.split(' ').join('').split('　').join('')
@@ -481,7 +499,7 @@ export default {
 
       this.$toasted.show(resultMessage, {
         theme:"bubble",
-        position:"top-right",
+        position:"bottom-right",
         duration:3000,
         type:toastType,
       })
