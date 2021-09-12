@@ -197,6 +197,33 @@ const makeLabels = function(fromWeathers, toWeathers, labelDates, labelDaysOfWee
   return labels
 }
 
+// 受け取ったJSON形式から、日付ラベルの形式に整えて返す関数
+const makeDateLabels = function(rawLabelDates){
+  let labelDates = []
+  let labelDaysOfWeek = [] //曜日
+  rawLabelDates.forEach(function(v, i) {
+    const date = new Date(v)
+    const dayOfWeek = date.getDay() ;	// 曜日(数値)
+    const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek]// 曜日(日本語表記)
+    let dateStr = ""
+    if (i == 0) {
+      dateStr = "昨日"
+    } else if (i==1) {
+      dateStr = "今日"
+    } else if (i==2){
+      dateStr = "明日"
+    } else {
+      const month = date.getMonth()+1 // 0始まりの数字で取得されるため、+1する
+      const day = date.getDate()
+      dateStr = month + "/" + day
+    }
+    labelDates.push(dateStr)
+    labelDaysOfWeek.push("(" + dayOfWeekStr + ")")
+  })
+  const dateLabels = [labelDates, labelDaysOfWeek]
+  return dateLabels
+}
+
 export default {
   name: 'WeatherComponent',
   components: { WeatherLineChart },
@@ -244,7 +271,14 @@ export default {
 
   // mounted :DOMが作成された直後に実行
   mounted() {
-    this.fillFirstChart()
+    if (this.$store.state.flgFavoritesToWeather) {
+      // favoritesから遷移してきた場合に実行
+      this.favoritesToWeather()
+    } else {
+      // 通常の初期表示時に実行
+      this.fillFirstChart()
+    }
+
   },
 
 
@@ -329,19 +363,14 @@ export default {
       // PrefCodeに応じたCityInfosを取得し代入
       this.$store.commit(Types.UPDATE_ITEMS_TO_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemToPrefSelected])
     },
-    
-    // 現在地の都市変更時に呼び出し
-    async changeFromCity(cityCode){
-      this.loaded = false
-      this.$store.commit(Types.UPDATE_ITEM_FROM_CITY_SELECTED, cityCode)
 
-      // API get 
-      const response = await $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected)
+    // weatherFrom情報を受け取り、整形してstoreに保存する関数
+    setStoreWeatherFrom(weatherFromData){
       // 整形してstoreへ代入
       let fromTempMaxs = []
       let fromTempMins = []
       let fromWeathers = []
-      for (const v of response.data) {
+      for (const v of weatherFromData) {
         fromTempMaxs.push(v["MaxTemp"])
         fromTempMins.push(v["MinTemp"])
         fromWeathers.push(getWeatherIconByWeatherCode(v["WeatherCode"]))
@@ -351,6 +380,35 @@ export default {
       this.$store.commit(Types.UPDATE_FROM_WEATHERS, fromWeathers)
       // 都市名を設定
       this.$store.commit(Types.UPDATE_FROM_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemFromCitySelected])
+    },
+    // weatherTo情報を受け取り、整形してstoreに保存する関数
+    setStoreWeatherTo(weatherToData){
+      // 整形してstoreへ代入
+      let toTempMaxs = [NaN]
+      let toTempMins = [NaN]
+      let toWeathers = []
+      for (const v of weatherToData) {
+        toTempMaxs.push(v["MaxTemp"])
+        toTempMins.push(v["MinTemp"])
+        toWeathers.push(getWeatherIconByWeatherCode(v["WeatherCode"]))
+      }
+      this.$store.commit(Types.UPDATE_TO_TEMP_MAXS, toTempMaxs)
+      this.$store.commit(Types.UPDATE_TO_TEMP_MINS, toTempMins)
+      this.$store.commit(Types.UPDATE_TO_WEATHERS, toWeathers)
+      // 都市名を設定
+      this.$store.commit(Types.UPDATE_TO_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemToCitySelected])
+    },
+    
+    // 現在地の都市変更時に呼び出し
+    async changeFromCity(cityCode){
+      this.loaded = false
+      this.$store.commit(Types.UPDATE_ITEM_FROM_CITY_SELECTED, cityCode)
+
+      // API get 
+      const response = await $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected)
+      // 整形してstoreへ代入
+      this.setStoreWeatherFrom(response.data)
+      
       // labelを作成
       this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
       this.loaded = true
@@ -363,61 +421,14 @@ export default {
       // API get 
       const response = await $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
       // 整形してstoreへ代入
-      let toTempMaxs = [NaN]
-      let toTempMins = [NaN]
-      let toWeathers = []
-      for (const v of response.data) {
-        toTempMaxs.push(v["MaxTemp"])
-        toTempMins.push(v["MinTemp"])
-        toWeathers.push(getWeatherIconByWeatherCode(v["WeatherCode"]))
-      }
-      this.$store.commit(Types.UPDATE_TO_TEMP_MAXS, toTempMaxs)
-      this.$store.commit(Types.UPDATE_TO_TEMP_MINS, toTempMins)
-      this.$store.commit(Types.UPDATE_TO_WEATHERS, toWeathers)
-      // 都市名を設定
-      this.$store.commit(Types.UPDATE_TO_CITY_NAME, this.$store.state.cityCodeNameDict[this.$store.state.itemToCitySelected])
+      this.setStoreWeatherTo(response.data)
+      
       // labelを作成
       this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
       this.loaded = true
     },
 
-    // 最初にグラフ初期値を描くための関数
-    async fillFirstChart () {
-      this.loaded = false
-      // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
-      if (this.$store.state.labelDates == null) {
-        // APIコールして日付データ取得
-        const response = await $http.get('/get_datetimes')
-        // 日付ラベルの形式を整える
-        const rawLabelDates = response.data
-        let labelDates = []
-        let labelDaysOfWeek = [] //曜日
-        rawLabelDates.forEach(function(v, i) {
-          const date = new Date(v)
-          const dayOfWeek = date.getDay() ;	// 曜日(数値)
-          const dayOfWeekStr = [ "日", "月", "火", "水", "木", "金", "土" ][dayOfWeek]// 曜日(日本語表記)
-          let dateStr = ""
-          if (i == 0) {
-            dateStr = "昨日"
-          } else if (i==1) {
-            dateStr = "今日"
-          } else if (i==2){
-            dateStr = "明日"
-          } else {
-            const month = date.getMonth()+1 // 0始まりの数字で取得されるため、+1する
-            const day = date.getDate()
-            dateStr = month + "/" + day
-          }
-          labelDates.push(dateStr)
-          labelDaysOfWeek.push("(" + dayOfWeekStr + ")")
-        })
-        this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
-        this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
-      }
-      
-      // labelを作成
-      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
-
+    setLabelFontsize(){
       // labelのフォントサイズを決定
       let fontXSize = 12
       let fontYSize = 12
@@ -440,6 +451,28 @@ export default {
       }
       this.labelXFontSize = fontXSize
       this.labelYFontSize = fontYSize
+    },
+
+    // 最初にグラフ初期値を描くための関数
+    async fillFirstChart () {
+      this.loaded = false
+      // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
+      if (this.$store.state.labelDates == null) {
+        // APIコールして日付データ取得
+        const response = await $http.get('/get_datetimes')
+        // 日付ラベルの形式を整える
+        const dateLabels = makeDateLabels(response.data)
+        const labelDates = dateLabels[0]
+        const labelDaysOfWeek = dateLabels[1]
+
+        this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
+        this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
+      }
+      
+      // labelを作成
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
+      // ラベルのフォントサイズを決定
+      this.setLabelFontsize()
 
       // storeの状態をもとに、現在地、目的地の都市選択フラグを更新
       if (this.$store.state.itemFromCitySelected != null){
@@ -505,6 +538,74 @@ export default {
       })
 
       this.loading = false
+    },
+
+    // favoritesページから遷移してきたときの初期処理を実行
+    async favoritesToWeather () {
+      this.loaded = false
+
+      let resWeatherFrom
+      let resWeatherTo
+      // 日付ラベルのarrayがまだ存在しない場合、まとめてAPIから取得し作成
+      if (this.$store.state.labelDates == null) {
+        //1.GETリクエスト送信 //並行処理
+        //2.全てのレスポンスが返ってくるまで待ち合わせ
+        // Promise.all([])とawaitを併用する
+        const results = await Promise.all([
+          $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected),
+          $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected),
+          $http.get('/get_datetimes')
+        ])
+        resWeatherFrom  = results[0]
+        resWeatherTo = results[1]
+        const resLabelDates = results[2]
+        
+        // 日付ラベルの形式を整える
+        const dateLabels = makeDateLabels(resLabelDates.data)
+        const labelDates = dateLabels[0]
+        const labelDaysOfWeek = dateLabels[1]
+
+        this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
+        this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
+      } else {
+        //1.GETリクエスト送信 //並行処理
+        //2.全てのレスポンスが返ってくるまで待ち合わせ
+        // Promise.all([])とawaitを併用する
+        const results = await Promise.all([
+          $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected),
+          $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
+        ])
+        resWeatherFrom  = results[0]
+        resWeatherTo = results[1]
+      }
+      // fromを整形してstoreへ代入
+      this.setStoreWeatherFrom(resWeatherFrom.data)
+      // toを整形してstoreへ代入
+      this.setStoreWeatherFrom(resWeatherTo.data)
+      
+      // labelを作成
+      this.labels = makeLabels(this.$store.state.fromWeathers, this.$store.state.toWeathers, this.$store.state.labelDates, this.$store.state.labelDaysOfWeek)
+      // ラベルのフォントサイズを決定
+      this.setLabelFontsize()
+
+      // 都市のセレクトを設定
+      this.$store.commit(Types.UPDATE_ITEMS_FROM_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemFromPrefSelected])
+      this.$store.commit(Types.UPDATE_ITEMS_TO_CITY, this.$store.state.prefCodeCityInfosDict[this.$store.state.itemToPrefSelected])
+
+      // storeの状態をもとに、現在地、目的地の都市選択フラグを更新
+      if (this.$store.state.itemFromCitySelected != null){
+        this.flgFromCitySelected = true
+      }
+      if (this.$store.state.itemToCitySelected != null){
+        this.flgToCitySelected = true
+      }
+      // storeからnicknameを取得し設定
+      this.nickname = this.$store.state.nickname
+
+      // 画面遷移フラグをfalseに戻す
+      this.$store.commit(Types.UPDATE_FLG_FAVORITES_TO_WEATHER, false)
+
+      this.loaded = true
     },
   
   }

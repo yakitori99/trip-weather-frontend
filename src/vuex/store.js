@@ -38,6 +38,9 @@ const state = {
     toTempMins:[NaN],
     // nickname
     nickname:"",
+
+    // 画面遷移フラグ
+    flgFavoritesToWeather:false,
 }
 
 
@@ -115,6 +118,11 @@ const mutations = {
   // NICKNAME
   [Types.UPDATE_NICKNAME](state, nickname) {
     state.nickname = nickname
+  },
+
+  // 画面遷移フラグ
+  [Types.UPDATE_FLG_FAVORITES_TO_WEATHER](state, flgFavoritesToWeather) {
+    state.flgFavoritesToWeather = flgFavoritesToWeather
   },
 }
 

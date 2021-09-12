@@ -36,6 +36,8 @@
           itemsPerPageOptions: [5, 10, 20, -1],
           itemsPerPageText: '表示件数',
         }"
+
+        @click:row="onClickRow($event)"
       ></v-data-table>
     </v-card>
 
@@ -45,6 +47,8 @@
 
 <script>
 import axios from "axios"
+
+import Types from '../vuex/types'
 import config from "../config/config"
 
 //axiosインスタンス生成
@@ -152,6 +156,28 @@ export default {
       this.favorites = changeResData2Favorites(resFavorites.data)
       
       this.loading = false
+    },
+
+    onClickRow(row){
+      // debug
+      // console.log(row)
+      // 都市コードから都道府県コードを作成
+      const fromCityCode = row["FromCityCode"]
+      const fromPrefCode = fromCityCode.substr(0, 2)
+      const toCityCode = row["ToCityCode"]
+      const toPrefCode = toCityCode.substr(0, 2)
+
+      // 選択された現在地・目的地の都道府県・都市をstoreに保存
+      this.$store.commit(Types.UPDATE_ITEM_FROM_CITY_SELECTED, fromCityCode)
+      this.$store.commit(Types.UPDATE_ITEM_FROM_PREF_SELECTED, fromPrefCode)
+      this.$store.commit(Types.UPDATE_ITEM_TO_CITY_SELECTED, toCityCode)
+      this.$store.commit(Types.UPDATE_ITEM_TO_PREF_SELECTED, toPrefCode)
+      
+      // 画面遷移フラグをセットし、weather画面へ遷移
+      this.$store.commit(Types.UPDATE_FLG_FAVORITES_TO_WEATHER, true)
+      this.$router.push({
+        name: 'weather',
+      })
     },
 
     // v-data-tableのカスタムソート
