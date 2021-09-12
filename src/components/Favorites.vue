@@ -41,16 +41,16 @@
 
 <script>
 import axios from "axios"
+import config from "../config/config"
 
-// const api_base_url = "http://localhost:1323"
-const api_base_url = "https://trip-weather-backend.herokuapp.com"
 //axiosインスタンス生成
 const $http = new axios.create({
-    baseURL: api_base_url
+    baseURL: config.API_BASE_URL
 })
 
+
 // favoritesを取得する件数n
-const getN = 50
+const getN = 100
 
 export default {
   name: "Favorites",
@@ -66,8 +66,6 @@ export default {
       {text:"更新日", value:"UpdDate"},
     ],
     favorites:[],
-    // 全件取得するか
-    isGetAll:false,
 
   }),
 
@@ -80,13 +78,8 @@ export default {
     // API経由でお気に入り情報を取得
     async getFavorites () {
       this.loading = true
-      let response
       // API get 
-      if (this.isGetAll){
-        response = await $http.get("/favorites")
-      } else {
-        response = await $http.get("/favorites/"+String(getN))
-      }
+      const response = await $http.get("/favorites/to/"+String(getN))
       
       // 表示用にデータを整形
       let favorites = []

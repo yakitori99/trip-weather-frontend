@@ -45,6 +45,9 @@ body {
 .text-center {
     text-align: center;
 }
+.text-end{
+    text-align: end;
+}
 
 /* ロード中のアイコン */
 .v-progress-circular {
@@ -182,12 +185,20 @@ body {
 .to_color {
     color: #35d3da !important;
 }
-/* お気に入りに登録ボタン */
-.weather-ins-button {
-    margin-top:0.5rem;
+/* お気に入りに登録エリア */
+.weather-ins-area-div {
+    margin-top:1rem;
     margin-right:1rem;
     margin-bottom:1.5rem;
+
+/* お気に入りに登録テキストフィールド */}
+
+/* お気に入りに登録ボタン */
+.weather-ins-button {
+    margin-left:2rem;
+    margin-top:1rem;
 }
+
 
 /* Favorites -------------------------------------- */
 .favorites-all-div {

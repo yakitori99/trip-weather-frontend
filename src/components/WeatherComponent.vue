@@ -1,6 +1,7 @@
 <template>
 <div>
   <v-container>
+
     <!-- 都道府県、都市の選択 -->
     <v-row class="mt-1">
       <!-- Fromの選択 -->
@@ -82,38 +83,54 @@
       v-bind:label-x-font-size="labelXFontSize"
       v-bind:label-y-font-size="labelYFontSize"
     />
-  </v-container>
-  <!-- 天気のグラフのロード中に表示するアイコン -->
-  <div class="text-center">
-    <v-progress-circular
-        v-if="!loaded"
-        indeterminate
-        color="orange accent-3"
-        :size="50"
-        :width="4"
-        class="v-progress-circular"
-    ></v-progress-circular>
-  </div>
+    <!-- 天気のグラフのロード中に表示するアイコン -->
+    <div class="text-center">
+      <v-progress-circular
+          v-if="!loaded"
+          indeterminate
+          color="orange accent-3"
+          :size="50"
+          :width="4"
+          class="v-progress-circular"
+      ></v-progress-circular>
+    </div>
   
-  <!-- お気に入りに登録ボタン -->
-  <v-container>
-    <v-row
-      justify="end"
-    >
-      <v-btn
-        color="cyan accent-4"
-        class="weather-ins-button"
-        dark
-        @click="insertFavorite"
-        v-if="flgFromCitySelected && flgToCitySelected"  
-        v-bind:loading="loading"        
+    <!-- お気に入りに登録エリア -->
+      <v-row
+        justify="end"
+        class="weather-ins-area-div"
       >
-        <i class="fas fa-star icon-padding-medium"></i>
-        お気に入りに登録
-      </v-btn>
-    </v-row>
-  </v-container>
+      <!-- お気に入り登録用ニックネーム -->
+      <div class="text-end">
+        <v-text-field
+          label="ニックネーム（任意）"
+          prepend-icon="mdi-account-circle-outline"
 
+          v-model="nickname"
+          v-bind:rules="[rules.counter]"
+          counter="10"
+          maxlength="10"
+          v-if="flgFromCitySelected && flgToCitySelected"
+        ></v-text-field>
+      </div>
+
+      <!-- お気に入りに登録ボタン -->
+      <div class="text-end">
+        <v-btn
+          color="cyan accent-4"
+          class="weather-ins-button"
+          dark
+          @click="insertFavorite"
+          v-if="flgFromCitySelected && flgToCitySelected"
+          v-bind:loading="loading"        
+        >
+          <i class="fas fa-star icon-padding-medium"></i>
+          お気に入りに登録
+        </v-btn>
+      </div>
+    </v-row>
+
+  </v-container>
 </div>
 </template>
 
@@ -122,13 +139,11 @@ import axios from 'axios'
 
 import WeatherLineChart from './WeatherLineChart.vue'
 import Types from '../vuex/types'
-
-// const api_base_url = 'http://localhost:1323'
-const api_base_url = 'https://trip-weather-backend.herokuapp.com'
+import config from "../config/config"
 
 //axiosインスタンス生成
 const $http = new axios.create({
-    baseURL: api_base_url
+    baseURL: config.API_BASE_URL
 })
 
 // WEATHER_CODEは開始、終了を持たせて範囲で判定する
@@ -200,6 +215,12 @@ export default {
     labels:[],
     labelXFontSize:12,
     labelYFontSize:12,
+
+    // テキストフィールド
+    nickname:"",
+    rules: {
+      counter: value => value.length <= 10 || '最大10文字です',
+    },
   }),
 
   //created:インスタンス生成後に実行
@@ -420,6 +441,8 @@ export default {
       if (this.$store.state.itemToCitySelected != null){
         this.flgToCitySelected = true
       }
+      // storeからnicknameを取得し設定
+      this.nickname = this.$store.state.nickname
 
       this.loaded = true
     },
@@ -427,12 +450,17 @@ export default {
     // 選択中の現在地都市、目的地都市をAPI経由でfavoriteテーブルへ登録（登録済みの場合、更新日時のみ更新）
     async insertFavorite () {
       this.loading = true
+      // ニックネーム文字列の空白を削除してthisへ再設定、storeへ登録
+      this.nickname = this.nickname.split(' ').join('').split('　').join('')
+      const nickname = this.nickname
+      this.$store.commit(Types.UPDATE_NICKNAME, nickname)
 
       const fromCityCode = this.$store.state.itemFromCitySelected
       const toCityCode = this.$store.state.itemToCitySelected
       
       // json形式でAPI POST
       const response = await $http.post('/favorites', {
+        nickname:nickname,
         from_city_code:fromCityCode,
         to_city_code:toCityCode,
       })

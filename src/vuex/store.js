@@ -35,7 +35,9 @@ const state = {
     fromTempMaxs:[NaN],
     fromTempMins:[NaN],
     toTempMaxs:[NaN],
-    toTempMins:[NaN]
+    toTempMins:[NaN],
+    // nickname
+    nickname:"",
 }
 
 
@@ -110,6 +112,10 @@ const mutations = {
     state.toTempMins = toTempMins
   },
 
+  // NICKNAME
+  [Types.UPDATE_NICKNAME](state, nickname) {
+    state.nickname = nickname
+  },
 }
 
 const getters = {}
