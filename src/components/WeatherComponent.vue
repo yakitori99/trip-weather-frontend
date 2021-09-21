@@ -405,7 +405,21 @@ export default {
       this.$store.commit(Types.UPDATE_ITEM_FROM_CITY_SELECTED, cityCode)
 
       // API get 
-      const response = await $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected)
+      let response
+      try{
+        response = await $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected)
+      } catch(err) {
+        // エラーであれば、後処理をして関数を抜ける
+        console.log(err)
+        if (err.response.status == 503){
+          this.showAPIError("現在OpenWeatherAPIが利用できません。時間をおいて再度お試し下さい。")
+        }else{
+          this.showAPIError("現在APIが利用できません。時間をおいて再度お試し下さい。")
+        }
+        this.loaded = true
+        return
+      }
+      
       // 整形してstoreへ代入
       this.setStoreWeatherFrom(response.data)
       
@@ -418,8 +432,21 @@ export default {
       this.loaded = false
       this.$store.commit(Types.UPDATE_ITEM_TO_CITY_SELECTED, cityCode)
 
-      // API get 
-      const response = await $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
+      // API get
+      let response
+      try{
+        response = await $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
+      } catch(err) {
+        // エラーであれば、後処理をして関数を抜ける
+        console.log(err)
+        if (err.response.status == 503){
+          this.showAPIError("現在OpenWeatherAPIが利用できません。時間をおいて再度お試し下さい。")
+        }else{
+          this.showAPIError("現在APIが利用できません。時間をおいて再度お試し下さい。")
+        }
+        this.loaded = true
+        return
+      }
       // 整形してstoreへ代入
       this.setStoreWeatherTo(response.data)
       
@@ -543,49 +570,65 @@ export default {
       
       // 共通の初期処理を実施
       this.commonFirstSetting()
-
       this.loaded = true
+    },
+
+    // APIエラーがあった場合の画面表示処理
+    // OpenWeatherAPIの呼び出し処理失敗時に利用する
+    showAPIError(errorMessage){
+      this.$toasted.show(errorMessage, {
+        theme:"bubble",
+        position:"bottom-right",
+        duration:7000,
+        type:"error",
+      })
     },
 
     // favoritesページから遷移してきたときの初期処理を実行
     async favoritesToWeather () {
       this.loaded = false
 
-      // 現在地、目的地の天気をAPI経由で取得
-      let resWeatherFrom
-      let resWeatherTo
-      // 日付ラベルのarrayがまだ存在しない場合、まとめてAPIから取得し作成
+      // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
       if (this.$store.state.labelDates == null) {
-        //1.GETリクエスト送信 //並行処理
-        //2.全てのレスポンスが返ってくるまで待ち合わせ
-        // Promise.all([])とawaitを併用する
-        const results = await Promise.all([
-          $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected),
-          $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected),
-          $http.get('/get_datetimes')
-        ])
-        resWeatherFrom  = results[0]
-        resWeatherTo = results[1]
-        const resLabelDates = results[2]
-        
+        // APIコールして日付データ取得
+        const response = await $http.get('/get_datetimes')
         // 日付ラベルの形式を整える
-        const dateLabels = makeDateLabels(resLabelDates.data)
+        const dateLabels = makeDateLabels(response.data)
         // storeへ代入
         const labelDates = dateLabels[0]
         const labelDaysOfWeek = dateLabels[1]
         this.$store.commit(Types.UPDATE_LABEL_DATES, labelDates)
         this.$store.commit(Types.UPDATE_LABEL_DAYS_OF_WEEK, labelDaysOfWeek)
-      } else {
-        //1.GETリクエスト送信 //並行処理
-        //2.全てのレスポンスが返ってくるまで待ち合わせ
-        // Promise.all([])とawaitを併用する
-        const results = await Promise.all([
+      }
+
+      // 現在地、目的地の天気をAPI経由で取得
+      let resWeatherFrom
+      let resWeatherTo
+      let results
+      //1.GETリクエスト送信 //並行処理
+      //2.全てのレスポンスが返ってくるまで待ち合わせ
+      // Promise.all([])とawaitを併用する
+      try {
+        results = await Promise.all([
           $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected),
           $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
         ])
-        resWeatherFrom  = results[0]
-        resWeatherTo = results[1]
+      } catch(err) {
+        // 1つでもエラーであれば、後処理をして関数を抜ける
+        console.log(err)
+        if (err.response.status == 503){
+          this.showAPIError("現在OpenWeatherAPIが利用できません。時間をおいて再度お試し下さい。")
+        }else{
+          this.showAPIError("現在APIが利用できません。時間をおいて再度お試し下さい。")
+        }
+        // 共通の初期処理を実施
+        this.commonFirstSetting()
+        this.loaded = true
+        return
       }
+      resWeatherFrom  = results[0]
+      resWeatherTo = results[1]
+      
       // fromを整形してstoreへ代入
       this.setStoreWeatherFrom(resWeatherFrom.data)
       // toを整形してstoreへ代入
@@ -599,7 +642,6 @@ export default {
 
       // 共通の初期処理を実施
       this.commonFirstSetting()
-
       this.loaded = true
     },
   
