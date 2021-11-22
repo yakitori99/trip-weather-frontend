@@ -318,8 +318,8 @@ export default {
         //2.全てのレスポンスが返ってくるまで待ち合わせ
         // Promise.all([])とawaitを併用する
         const results = await Promise.all([
-          $http.get('/get_prefs'),
-          $http.get('/get_cities')
+          $http.get('/prefs'),
+          $http.get('/cities')
         ])
         const resPrefs = results[0]
         const resCities = results[1]
@@ -407,7 +407,7 @@ export default {
       // API get 
       let response
       try{
-        response = await $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected)
+        response = await $http.get('/weather_from/'+this.$store.state.itemFromCitySelected)
       } catch(err) {
         // エラーであれば、後処理をして関数を抜ける
         console.log(err)
@@ -435,7 +435,7 @@ export default {
       // API get
       let response
       try{
-        response = await $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
+        response = await $http.get('/weather_to/'+this.$store.state.itemToCitySelected)
       } catch(err) {
         // エラーであれば、後処理をして関数を抜ける
         console.log(err)
@@ -558,7 +558,7 @@ export default {
       // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
       if (this.$store.state.labelDates == null) {
         // APIコールして日付データ取得
-        const response = await $http.get('/get_datetimes')
+        const response = await $http.get('/datetimes')
         // 日付ラベルの形式を整える
         const dateLabels = makeDateLabels(response.data)
         // storeへ代入
@@ -591,7 +591,7 @@ export default {
       // 日付ラベルのarrayがまだ存在しない場合、APIから取得し作成
       if (this.$store.state.labelDates == null) {
         // APIコールして日付データ取得
-        const response = await $http.get('/get_datetimes')
+        const response = await $http.get('/datetimes')
         // 日付ラベルの形式を整える
         const dateLabels = makeDateLabels(response.data)
         // storeへ代入
@@ -610,8 +610,8 @@ export default {
       // Promise.all([])とawaitを併用する
       try {
         results = await Promise.all([
-          $http.get('/get_weather_from/'+this.$store.state.itemFromCitySelected),
-          $http.get('/get_weather_to/'+this.$store.state.itemToCitySelected)
+          $http.get('/weather_from/'+this.$store.state.itemFromCitySelected),
+          $http.get('/weather_to/'+this.$store.state.itemToCitySelected)
         ])
       } catch(err) {
         // 1つでもエラーであれば、後処理をして関数を抜ける
