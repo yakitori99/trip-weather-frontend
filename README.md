@@ -60,8 +60,8 @@ https://trip-weather-frontend.herokuapp.com/
 
 ### インフラ
 - Heroku
+- Heroku Postgres
 - Docker / docker-compose
-- SQLite
 
 ### API
 - OpenWeather API
